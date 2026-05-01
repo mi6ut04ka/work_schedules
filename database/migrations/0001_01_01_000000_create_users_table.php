@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->integer('vacation_days_balance')->default(28);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('pager')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
