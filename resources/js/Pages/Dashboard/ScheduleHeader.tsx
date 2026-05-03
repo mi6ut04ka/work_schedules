@@ -1,10 +1,8 @@
 import { memo } from "react";
 import type { DayMeta } from "@/types/types";
+import {CELL_W, MONTH_NAMES, ROW_H, SIDEBAR_W} from "@/types/types";
 
-const MONTH_NAMES = [
-    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-] as const;
+
 
 interface ScheduleHeaderProps {
     monthMeta: DayMeta[];
@@ -23,33 +21,29 @@ function ScheduleHeader({ monthMeta, totalEmployees, highlightedCol, onColClick 
     const monthLabel = resolveMonthLabel(monthMeta);
 
     return (
-        <div className="flex sticky top-0 z-20 bg-slate-900 border-b border-slate-800">
-
-            {/* Угловая ячейка */}
+        <div className="flex sticky top-0 z-20 border-b border-slate-800 bg-slate-900 w-max">
             <div
-                className="sticky left-0 z-30 flex-shrink-0 w-60 bg-slate-900 border-r border-slate-800 flex flex-col justify-center px-3"
+                style={{width: SIDEBAR_W}}
+                className="sticky left-0 z-30 flex-shrink-0 border-r border-slate-800 flex flex-col justify-center px-3 bg-slate-800"
             >
                 <span className="text-[10px] uppercase tracking-widest text-slate-500">
                     {monthLabel}
                 </span>
                 <span className="text-sm font-semibold text-slate-200">
-                    {totalEmployees.toLocaleString("ru-RU")} сотрудников
+                    {totalEmployees} сотрудников
                 </span>
             </div>
 
-            {/* Колонки дней */}
             <div className="flex flex-col flex-1">
 
-                {/* Строка с названием месяца */}
                 <div
                     className="flex items-center justify-center h-6 text-[11px] font-semibold uppercase tracking-widest text-slate-500 border-b border-slate-800"
-                    style={{ width: 44 * monthMeta.length }}
+                    style={{ width: CELL_W * monthMeta.length }}
                 >
                     {monthLabel.toUpperCase()}
                 </div>
 
-                {/* Строка с номерами дней */}
-                <div className="flex h-8">
+                <div className="flex">
                     {monthMeta.map((d) => {
                         const isHl = highlightedCol === d.key;
                         return (
@@ -57,9 +51,10 @@ function ScheduleHeader({ monthMeta, totalEmployees, highlightedCol, onColClick 
                                 key={d.key}
                                 data-day={d.key}
                                 onClick={() => onColClick(d.key)}
+                                style={{width: CELL_W, height: ROW_H}}
                                 className={[
-                                    "hdr-day-cell",          // используется CSS-правилом подсветки колонки
-                                    "flex-shrink-0 w-11 h-8",
+                                    "hdr-day-cell",
+                                    "flex-shrink-0",
                                     "flex flex-col items-center justify-center",
                                     "text-[11px] font-medium",
                                     "border-r border-slate-800",

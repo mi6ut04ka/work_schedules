@@ -12,13 +12,8 @@ import {
     ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import type { OrganisationUnit, ViewMode } from "@/types/types";
+import {MONTH_NAMES} from "@/types/types";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES = [
-    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-] as const;
 
 const VIEWS: { id: ViewMode; label: string }[] = [
     { id: "dept",  label: "По отделам" },
@@ -32,11 +27,9 @@ function flattenUnits(
 ): Array<{ unit: OrganisationUnit; depth: number }> {
     return units.flatMap((u) => [
         { unit: u, depth },
-        ...flattenUnits(u.children ?? [], depth + 1),
+        ...flattenUnits(u.all_children ?? [], depth + 1),
     ]);
 }
-
-// ─── MonthPicker ──────────────────────────────────────────────────────────────
 
 interface MonthPickerProps {
     month: number;
@@ -75,7 +68,6 @@ function MonthPicker({ month, year, onChange }: MonthPickerProps) {
     );
 }
 
-// ─── UnitFilterDropdown ───────────────────────────────────────────────────────
 
 interface UnitFilterProps {
     units: OrganisationUnit[];
@@ -85,7 +77,7 @@ interface UnitFilterProps {
 
 function UnitFilterDropdown({ units, selectedId, onSelect }: UnitFilterProps) {
     const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLDivElement | null>(null);
 
     const flat = flattenUnits(units);
     const selectedLabel =
@@ -159,7 +151,6 @@ function UnitFilterDropdown({ units, selectedId, onSelect }: UnitFilterProps) {
     );
 }
 
-// ─── Toolbar ──────────────────────────────────────────────────────────────────
 
 interface ToolbarProps {
     viewMode: ViewMode;
@@ -191,7 +182,6 @@ export default function Toolbar({
     return (
         <div className="h-12 flex-shrink-0 flex items-center gap-2 px-4 bg-slate-900 border-b border-slate-800">
 
-            {/* Выбор режима отображения */}
             <div className="flex border border-slate-700 rounded-md overflow-hidden">
                 {VIEWS.map((v) => (
                     <button
@@ -211,12 +201,10 @@ export default function Toolbar({
 
             <div className="w-px h-5 bg-slate-700" />
 
-            {/* Навигация по месяцу */}
             <MonthPicker month={month} year={year} onChange={handleMonthChange} />
 
             <div className="w-px h-5 bg-slate-700" />
 
-            {/* Фильтр по подразделению */}
             <UnitFilterDropdown
                 units={organisationUnits}
                 selectedId={selectedUnitId}
@@ -237,7 +225,6 @@ export default function Toolbar({
 
             <div className="w-px h-5 bg-slate-700" />
 
-            {/* Действия */}
             <button className="h-8 flex items-center gap-1.5 px-2.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
                 <ArrowUpTrayIcon className="w-3.5 h-3.5" />
                 Импорт

@@ -30,7 +30,6 @@ export interface Employee {
     organisation_unit?: OrganisationUnit;
     functional_groups?: FunctionalGroup[];
     schedule: Record<string, ScheduleCode>;
-    is_rotation?: boolean;
 }
 
 export type ViewMode = "dept" | "group";
@@ -66,3 +65,25 @@ export interface EmployeeRow {
 }
 
 export type VirtualRow = GroupHeaderRow | EmployeeRow;
+
+export const FALLBACK_COLORS: readonly string[] = [
+    "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+    "#8b5cf6", "#06b6d4", "#f97316", "#ec4899",
+];
+
+export const CODE_STYLES: Partial<Record<string, string>> = {
+    В: "text-red-400 bg-red-500/10",
+    О: "text-amber-400 bg-amber-500/10",
+    ОТ: "text-violet-400 bg-violet-500/10",
+    Я: "text-emerald-400 bg-emerald-500/10",
+};
+
+export const MONTH_NAMES = [
+    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
+] as const;
+
+export const SIDEBAR_W    = 300 as const;
+export const ROW_H        = 40  as const;
+export const GROUP_H      = 32  as const;
+export const CELL_W       = 50  as const;
