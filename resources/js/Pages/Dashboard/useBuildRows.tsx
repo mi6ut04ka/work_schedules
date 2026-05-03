@@ -38,6 +38,7 @@ function buildHierarchyRows(
             label: unit.name,
             depth,
             color,
+            all_children_ids: unit.all_children_ids ? [unit.id, ...unit.all_children_ids] : [unit.id]
         } satisfies GroupHeaderRow);
 
         for (const emp of employeesByUnit.get(unit.id) ?? []) {
@@ -48,7 +49,6 @@ function buildHierarchyRows(
             rows.push(...buildHierarchyRows(unit.all_children, employeesByUnit, depth + 1, color));
         }
     }
-
     return rows;
 }
 
@@ -74,7 +74,8 @@ function buildGroupRows(
     let ci = 0;
     for (const [key, {label, emps}] of buckets) {
         const color = FALLBACK_COLORS[ci++ % FALLBACK_COLORS.length];
-        rows.push({kind: "group-header", id: key, label, depth: 0, color});
+        const employeeIds = emps.map(e => e.id);
+        rows.push({kind: "group-header", id: key, label, depth: 0, color, group_employee_ids: employeeIds});
         for (const emp of emps) {
             const uid = emp.organisation_unit_id ?? emp.organisation_unit?.id;
             rows.push({

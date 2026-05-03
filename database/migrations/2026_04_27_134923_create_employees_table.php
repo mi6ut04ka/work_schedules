@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('personnel_number')->unique();
             $table->string('name');
+            $table->string('position');
             $table->foreignId('organisation_unit_id')->constrained('organisation_units');
             $table->integer('vacation_days_balance')->default(28);
             $table->enum('work_type', ['5/2', 'shift']);

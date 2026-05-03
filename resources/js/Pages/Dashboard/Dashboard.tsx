@@ -143,6 +143,7 @@ export default function Dashboard({
                             totalEmployees={employeeCount}
                             highlightedCol={highlightedCol}
                             onColClick={handleColClick}
+                            employees={filteredEmployees}
                         />
                         <div
                             style={{
@@ -167,7 +168,7 @@ export default function Dashboard({
                                                 willChange: "transform",
                                             }}
                                         >
-                                            <SidebarGroupHeader row={row} totalWidth={totalWidth}/>
+                                            <SidebarGroupHeader row={row} totalWidth={totalWidth} employees={filteredEmployees} monthMeta={month_meta}/>
                                         </div>
                                     );
                                 }

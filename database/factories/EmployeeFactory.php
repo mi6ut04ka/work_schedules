@@ -21,6 +21,7 @@ class EmployeeFactory extends Factory
             'organisation_unit_id' => OrganisationUnit::inRandomOrder()->first()->id ?? OrganisationUnit::factory(),
             'vacation_days_balance' => $this->faker->randomElement([28, 32, 45]),
             'work_type' => $this->faker->randomElement(['5/2', 'shift']),
+            'position' => $this->faker->jobTitle()
         ];
     }
 }

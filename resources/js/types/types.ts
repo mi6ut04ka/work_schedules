@@ -14,6 +14,7 @@ export interface OrganisationUnit {
     parent_id: number | null;
     color?: string;
     all_children?: OrganisationUnit[];
+    all_children_ids: number[]
 }
 
 export interface FunctionalGroup {
@@ -30,6 +31,7 @@ export interface Employee {
     organisation_unit?: OrganisationUnit;
     functional_groups?: FunctionalGroup[];
     schedule: Record<string, ScheduleCode>;
+    position: string
 }
 
 export type ViewMode = "dept" | "group";
@@ -54,6 +56,8 @@ export interface GroupHeaderRow {
     label: string;
     depth: number;
     color: string;
+    all_children_ids?: number[]
+    group_employee_ids?: number[]
 }
 
 export interface EmployeeRow {

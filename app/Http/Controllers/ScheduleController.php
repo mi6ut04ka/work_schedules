@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\OrganisationUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -67,6 +68,7 @@ class ScheduleController extends Controller
             return [
                 'id' => $emp->id,
                 'name' => $emp->name,
+                'position' => $emp->position,
                 'personnel_number' => $emp->personnel_number,
                 'organisation_unit_id' => $emp->organisation_unit_id,
                 'organisation_unit' => $emp->organisationUnit,
@@ -78,7 +80,19 @@ class ScheduleController extends Controller
         $organisationUnits = \App\Models\OrganisationUnit::with(['children','allChildren'])
             ->whereNull('parent_id')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($unit) {
+                $collectIds = function ($u) use (&$collectIds) {
+                    $ids = [$u->id];
+                    foreach ($u->allChildren as $child) {
+                        $ids = array_merge($ids, $collectIds($child));
+                    }
+                    return $ids;
+                };
+
+                $unit->all_children_ids = $collectIds($unit);
+                return $unit;
+            });
 
         return Inertia::render('Dashboard/Dashboard', [
             'month_meta' => $monthMeta,

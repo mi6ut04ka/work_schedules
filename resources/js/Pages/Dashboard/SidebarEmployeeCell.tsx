@@ -11,9 +11,7 @@ interface SidebarEmployeeCellProps {
 }
 
 function SidebarEmployeeCell(props: SidebarEmployeeCellProps) {
-    const sublabel = props.viewMode === "group"
-        ? props.emp.functional_groups?.map((g) => g.name).join(", ") || ""
-        : props.emp.organisation_unit?.name ?? "";
+    const sublabel = props.emp.position ?? "";
 
     return (
         <button
