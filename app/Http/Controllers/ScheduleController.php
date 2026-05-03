@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ScheduleController extends Controller
@@ -17,6 +18,14 @@ class ScheduleController extends Controller
         'shift_start' => 'Я',
         'shift_end' => 'Я',
     ];
+
+    const reverseCodeMap = [
+        '8'  => 'work',
+        'Я'  => 'shift_work',
+        'ОТ' => 'vacation',
+        'В'  => 'day_off',
+    ];
+
     public function index (Request $request) {
         $month = (int)$request->input('month', now()->month);
         $year = (int)$request->input('year', now()->year);
@@ -82,5 +91,56 @@ class ScheduleController extends Controller
                 'search' => $request->input('search', ''),
             ],
         ]);
+    }
+
+    public function saveSchedule (Request $request) {
+        $data = $request->validate([
+            '*.empId'  => ['required', 'integer', 'exists:employees,id'],
+            '*.dayKey' => ['required', 'date'],
+            '*.code'   => ['required', 'string'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($data as $item) {
+                $employeeId = $item['empId'];
+                $date       = $item['dayKey'];
+                $code       = $item['code'];
+
+                $shiftType = self::reverseCodeMap[$code] ?? null;
+
+                if (!$shiftType) {
+                    continue;
+                }
+
+                \App\Models\Schedule::updateOrCreate(
+                    [
+                        'employee_id' => $employeeId,
+                        'date' => $date,
+                    ],
+                    [
+                        'shift_type' => $shiftType,
+                        'is_manual' => true,
+                        'is_draft' => false,
+                        'source' => 'manual',
+                    ]
+                );
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+            ]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

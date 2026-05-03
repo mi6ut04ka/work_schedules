@@ -20,7 +20,6 @@ const VIEWS: { id: ViewMode; label: string }[] = [
     { id: "group", label: "По группам" },
 ];
 
-/** Рекурсивно собирает плоский список подразделений с отступом depth. */
 function flattenUnits(
     units: OrganisationUnit[],
     depth = 0
@@ -162,6 +161,8 @@ interface ToolbarProps {
     selectedUnitId: number | null;
     organisationUnits: OrganisationUnit[];
     onUnitSelect: (id: number | null) => void;
+    hasChanges: boolean
+    handleSave: () => void
 }
 
 export default function Toolbar({
@@ -174,6 +175,8 @@ export default function Toolbar({
                                     selectedUnitId,
                                     organisationUnits,
                                     onUnitSelect,
+                                    hasChanges,
+                                    handleSave
                                 }: ToolbarProps) {
     const handleMonthChange = (m: number, y: number) => {
         router.get("", { month: m, year: y }, { preserveState: true, preserveScroll: true });
@@ -240,7 +243,8 @@ export default function Toolbar({
 
             <div className="flex-1" />
 
-            <button className="h-8 flex items-center gap-1.5 px-3 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors">
+            {hasChanges && <span className="text-yellow-400 text-xs">● есть изменения</span>}
+            <button onClick={() => handleSave()} className="h-8 flex items-center gap-1.5 px-3 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors">
                 <CheckIcon className="w-3.5 h-3.5" />
                 Сохранить
             </button>

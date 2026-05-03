@@ -1,5 +1,5 @@
 import {Head} from "@inertiajs/react";
-import {useState, useRef, useMemo, useCallback} from "react";
+import {useState, useRef, useMemo, useCallback, useEffect} from "react";
 import {useVirtualizer} from "@tanstack/react-virtual";
 import Toolbar from "@/Pages/Dashboard/Toolbar";
 import ScheduleHeader from "@/Pages/Dashboard/ScheduleHeader";
@@ -7,10 +7,12 @@ import Cell from "@/Pages/Dashboard/Cell";
 import type {Employee, OrganisationUnit, ViewMode, SchedulePageProps} from "@/types/types";
 import useColumnHighlightStyle from "@/Pages/Dashboard/useColumnHighlightStyle";
 import SidebarEmployeeCell from "@/Pages/Dashboard/SidebarEmployeeCell";
-import {CELL_W, FALLBACK_COLORS, GROUP_H, ROW_H, SIDEBAR_W} from "@/types/types";
+import {CELL_W, FALLBACK_COLORS, GROUP_H, ROW_H, SCHEDULE_STATUSES, SIDEBAR_W} from "@/types/types";
 import {useFilteredEmployees} from "@/Pages/Dashboard/useFilteredEmployees";
 import SidebarGroupHeader from "@/Pages/Dashboard/SidebarGroupHeader";
 import {useVirtualRows} from "@/Pages/Dashboard/useBuildRows";
+import {useCellSelection} from "@/Pages/Dashboard/useCellSelection";
+import {useScheduleDraft} from "@/Pages/Dashboard/useScheduleDraft";
 
 export default function Dashboard({
                                       month_meta,
@@ -19,11 +21,32 @@ export default function Dashboard({
                                       filters,
                                   }: SchedulePageProps) {
 
-    const [viewMode,       setViewMode]       = useState<ViewMode>("dept");
-    const [search,         setSearch]         = useState<string>(filters.search ?? "");
+    const [viewMode, setViewMode] = useState<ViewMode>("dept");
+    const [search, setSearch] = useState<string>(filters.search ?? "");
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(filters.unit_id ?? null);
     const [highlightedRow, setHighlightedRow] = useState<number | null>(null);
     const [highlightedCol, setHighlightedCol] = useState<string | null>(null);
+    const [localEmployees, setLocalEmployees] = useState(employees);
+
+    //Выбор ячейки(ячеек)
+    const isManager = true;
+
+    const {
+        draftChanges,
+        dirtyKeys,
+        updateCells,
+        save
+    } = useScheduleDraft(setLocalEmployees);
+
+    const {
+        getCellKey,
+        contextMenu,
+        handleCellClick,
+        handleContextMenu,
+        handleChangeCode,
+        isCellSelected
+    } = useCellSelection(month_meta, isManager, updateCells);
+
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -31,18 +54,21 @@ export default function Dashboard({
 
     const childrenMap = useMemo<Map<number, number[]>>(() => {
         const map = new Map<number, number[]>();
+
         function walk(units: OrganisationUnit[]) {
             for (const u of units) {
                 map.set(u.id, (u.all_children ?? []).map((c) => c.id));
                 walk(u.all_children ?? []);
             }
         }
+
         walk(organisation_units);
         return map;
     }, [organisation_units]);
 
     const colorMap = useMemo<Map<number, string>>(() => {
         const map = new Map<number, string>();
+
         function walk(units: OrganisationUnit[], inherited?: string) {
             units.forEach((u, i) => {
                 const color = u.color ?? inherited ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length];
@@ -50,11 +76,12 @@ export default function Dashboard({
                 if (u.all_children?.length) walk(u.all_children, color);
             });
         }
+
         walk(organisation_units);
         return map;
     }, [organisation_units]);
 
-    const filteredEmployees = useFilteredEmployees(employees, search, selectedUnitId, childrenMap);
+    const filteredEmployees = useFilteredEmployees(localEmployees, search, selectedUnitId, childrenMap);
 
     const employeesByUnit = useMemo<Map<number, Employee[]>>(() => {
         const map = new Map<number, Employee[]>();
@@ -67,7 +94,7 @@ export default function Dashboard({
         return map;
     }, [filteredEmployees]);
 
-    const virtualRows = useVirtualRows(viewMode, filteredEmployees,organisation_units,employeesByUnit,colorMap);
+    const virtualRows = useVirtualRows(viewMode, filteredEmployees, organisation_units, employeesByUnit, colorMap);
 
     const totalWidth = SIDEBAR_W + CELL_W * month_meta.length;
 
@@ -78,17 +105,17 @@ export default function Dashboard({
         overscan: 15,
     });
 
-    const handleRowClick   = useCallback((id: number) =>
+    const handleRowClick = useCallback((id: number) =>
         setHighlightedRow((p) => (p === id ? null : id)), []);
 
-    const handleColClick   = useCallback((key: string) =>
+    const handleColClick = useCallback((key: string) =>
         setHighlightedCol((p) => (p === key ? null : key)), []);
 
     const employeeCount = filteredEmployees.length;
 
     return (
         <div>
-            <Head title="График" />
+            <Head title="График"/>
             <div className="flex flex-col h-screen bg-[#0f1117] text-slate-200 overflow-hidden">
 
                 <Toolbar
@@ -101,13 +128,15 @@ export default function Dashboard({
                     selectedUnitId={selectedUnitId}
                     organisationUnits={organisation_units}
                     onUnitSelect={setSelectedUnitId}
+                    hasChanges={draftChanges.size > 0}
+                    handleSave={save}
                 />
 
                 <div className="flex-1 overflow-hidden">
                     <div
                         ref={scrollRef}
                         className="w-full h-full overflow-auto"
-                        style={{ scrollbarWidth: "thin", scrollbarColor: "#334055 transparent" }}
+                        style={{scrollbarWidth: "thin", scrollbarColor: "#334055 transparent"}}
                     >
                         <ScheduleHeader
                             monthMeta={month_meta}
@@ -138,12 +167,12 @@ export default function Dashboard({
                                                 willChange: "transform",
                                             }}
                                         >
-                                            <SidebarGroupHeader row={row} totalWidth={totalWidth} />
+                                            <SidebarGroupHeader row={row} totalWidth={totalWidth}/>
                                         </div>
                                     );
                                 }
-                                const { emp, color } = row;
-                                const isRowSelected  = highlightedRow === emp.id;
+                                const {emp, color} = row;
+                                const isRowSelected = highlightedRow === emp.id;
 
                                 return (
                                     <div
@@ -163,7 +192,7 @@ export default function Dashboard({
                                     >
                                         <div
                                             className="sticky left-0 z-10 flex-shrink-0 bg-slate-900 border-r border-slate-800"
-                                            style={{ width: SIDEBAR_W }}
+                                            style={{width: SIDEBAR_W}}
                                         >
                                             <SidebarEmployeeCell
                                                 emp={emp}
@@ -178,9 +207,12 @@ export default function Dashboard({
                                                 key={d.key}
                                                 code={emp.schedule[d.key]}
                                                 dayKey={d.key}
-                                                employeeKey={emp.name}
+                                                employeeId={emp.id}
                                                 isRowSelected={isRowSelected}
-                                                onClick={() => handleRowClick(emp.id)}
+                                                onClick={(e) => handleCellClick(emp.id, d.key, e)}
+                                                isSelected={isCellSelected(emp.id, d.key)}
+                                                onContextMenu={(e) => handleContextMenu(e, emp.id, d.key)}
+                                                isDirty={dirtyKeys.has(getCellKey(emp.id, d.key))}
                                             />
                                         ))}
                                     </div>
@@ -189,20 +221,38 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
-                <div className="h-7 flex-shrink-0 flex items-center gap-4 px-4 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-500">
-                    {([
-                        ["8",  "рабочий день"],
-                        ["В",  "выходной"],
-                        ["О",  "отгул"],
-                        ["ОТ", "отпуск"],
-                        ["Я",  "явка"],
-                    ] as const).map(([code, label]) => (
+                <div
+                    className="h-7 flex-shrink-0 flex items-center gap-4 px-4 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-500">
+                    {SCHEDULE_STATUSES.map(({code, label}) => (
                         <span key={code}>
                             <strong className="text-slate-400">{code}</strong> — {label}
                         </span>
                     ))}
                 </div>
             </div>
+            {contextMenu && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: contextMenu.y,
+                        left: contextMenu.x,
+                        background: "#1e293b",
+                        border: "1px solid #334155",
+                        padding: "6px",
+                        zIndex: 50,
+                    }}
+                >
+                    {SCHEDULE_STATUSES.map((status) => (
+                        <button
+                            key={status.code}
+                            onClick={() => handleChangeCode(status.code)}
+                            className="block px-2 py-1 hover:bg-slate-700 text-white w-full text-left"
+                        >
+                            {status.code} — {status.label}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -37,7 +37,6 @@ export type ViewMode = "dept" | "group";
 export interface SchedulePageProps {
     month_meta: DayMeta[];
     employees: Employee[];
-    /** Корневые подразделения с рекурсивными children от сервера */
     organisation_units: OrganisationUnit[];
     functional_groups?: FunctionalGroup[];
     filters: {
@@ -82,6 +81,15 @@ export const MONTH_NAMES = [
     "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
     "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
 ] as const;
+
+export const SCHEDULE_STATUSES = [
+    { code: "8",  label: "рабочий день" },
+    { code: "Я",  label: "явка" },
+    { code: "В",  label: "выходной" },
+    { code: "О",  label: "отгул" },
+    { code: "ОТ", label: "отпуск" },
+] as const;
+
 
 export const SIDEBAR_W    = 300 as const;
 export const ROW_H        = 40  as const;
