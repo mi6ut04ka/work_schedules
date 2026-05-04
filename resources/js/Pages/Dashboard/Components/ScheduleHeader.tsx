@@ -34,7 +34,7 @@ function ScheduleHeader({ monthMeta, totalEmployees, highlightedCol, onColClick,
                     {totalEmployees} сотрудников
                 </span>
                 </div>
-                <div style={{ height: ROW_H }} className="text-sm text-green-600 border border-slate-800 items-center px-3 flex">
+                <div style={{ height: ROW_H }} className="text-sm text-green-600 border border-slate-800 bg-slate-900 items-center px-3 flex">
                     Кол-во сотрудников на работе, %
                 </div>
             </div>

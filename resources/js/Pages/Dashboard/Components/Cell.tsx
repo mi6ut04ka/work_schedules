@@ -28,7 +28,7 @@ const Cell: FC<CellProps> = (props) => {
                 "transition-colors duration-100 will-change-transform",
                 "hover:bg-slate-700/50 select-none",
                 props.isSelected
-                    ? "bg-blue-500/30"
+                    ? "bg-blue-500/40"
                     : props.isRowSelected
                         ? "bg-blue-500/10"
                         : "",

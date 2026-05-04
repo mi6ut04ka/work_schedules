@@ -1,6 +1,6 @@
 import {memo} from "react";
 import type {DayMeta, Employee, GroupHeaderRow} from "@/types/types";
-import {CELL_W, ROW_H, SIDEBAR_W} from "@/types/types";
+import {CELL_W, GROUP_H, ROW_H, SIDEBAR_W} from "@/types/types";
 
 interface SidebarGroupHeaderProps {
     row: GroupHeaderRow;
@@ -16,8 +16,8 @@ export default memo(function SidebarGroupHeader(props: SidebarGroupHeaderProps) 
 
     return (
         <div
-            className="flex items-center h-8 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm select-none"
-            style={{width: props.totalWidth, minWidth: props.totalWidth}}
+            className="flex items-center border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm select-none"
+            style={{width: props.totalWidth, minWidth: props.totalWidth, height: GROUP_H}}
         >
             <div
                 className="sticky left-0 z-10 flex items-center flex-shrink-0 h-full bg-slate-900/90 border-r border-slate-800"

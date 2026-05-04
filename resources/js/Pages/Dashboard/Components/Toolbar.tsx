@@ -13,6 +13,10 @@ import {
 } from "@heroicons/react/24/outline";
 import type { OrganisationUnit, ViewMode } from "@/types/types";
 import {MONTH_NAMES} from "@/types/types";
+import {ShieldCheckIcon, UserGroupIcon, WrenchScrewdriverIcon} from "@heroicons/react/24/solid";
+import MoreActionsDropdown from "@/Pages/Dashboard/Components/MoreActionsDropdown";
+import Modal from "@/Pages/Dashboard/Components/ui/Modal";
+import ImportScheduleModal from "@/Pages/Dashboard/Components/modals/ImportScheduleModal";
 
 
 const VIEWS: { id: ViewMode; label: string }[] = [
@@ -182,8 +186,19 @@ export default function Toolbar({
         router.get("", { month: m, year: y }, { preserveState: true, preserveScroll: true });
     };
 
+    const [importOpen, setImportOpen] = useState(false);
+
+    const handleExport = () => {
+        console.log("export");
+    };
+
+    const handleGenerate = () => {
+        console.log("generate");
+    };
+
+
     return (
-        <div className="h-12 flex-shrink-0 flex items-center gap-2 px-4 bg-slate-900 border-b border-slate-800">
+        <div className="h-12 flex-shrink-0 flex items-center gap-2 bg-slate-900 border-b border-slate-800">
 
             <div className="flex border border-slate-700 rounded-md overflow-hidden">
                 {VIEWS.map((v) => (
@@ -202,11 +217,11 @@ export default function Toolbar({
                 ))}
             </div>
 
-            <div className="w-px h-5 bg-slate-700" />
+            <div className="w-px h-5 bg-slate-700"/>
 
-            <MonthPicker month={month} year={year} onChange={handleMonthChange} />
+            <MonthPicker month={month} year={year} onChange={handleMonthChange}/>
 
-            <div className="w-px h-5 bg-slate-700" />
+            <div className="w-px h-5 bg-slate-700"/>
 
             <UnitFilterDropdown
                 units={organisationUnits}
@@ -214,9 +229,8 @@ export default function Toolbar({
                 onSelect={onUnitSelect}
             />
 
-            {/* Поиск */}
             <div className="relative flex items-center">
-                <MagnifyingGlassIcon className="absolute left-2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+                <MagnifyingGlassIcon className="absolute left-2 w-3.5 h-3.5 text-slate-500 pointer-events-none"/>
                 <input
                     type="text"
                     value={search}
@@ -226,28 +240,35 @@ export default function Toolbar({
                 />
             </div>
 
-            <div className="w-px h-5 bg-slate-700" />
+            <div className="w-px h-5 bg-slate-700"/>
 
-            <button className="h-8 flex items-center gap-1.5 px-2.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
-                <ArrowUpTrayIcon className="w-3.5 h-3.5" />
-                Импорт
-            </button>
-            <button className="h-8 flex items-center gap-1.5 px-2.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
-                <BoltIcon className="w-3.5 h-3.5" />
-                Генерировать
-            </button>
-            <button className="h-8 flex items-center gap-1.5 px-2.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
-                <ArrowDownTrayIcon className="w-3.5 h-3.5" />
-                Экспорт
-            </button>
-
-            <div className="flex-1" />
+            <div className="flex-1"/>
 
             {hasChanges && <span className="text-yellow-400 text-xs">● есть изменения</span>}
-            <button onClick={() => handleSave()} className="h-8 flex items-center gap-1.5 px-3 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors">
-                <CheckIcon className="w-3.5 h-3.5" />
+            <button onClick={() => handleSave()}
+                    className="h-8 flex items-center gap-1.5 px-3 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors">
+                <CheckIcon className="w-3.5 h-3.5"/>
                 Сохранить
             </button>
+            <MoreActionsDropdown
+                actions={[
+                    {label: "Импорт", icon: ArrowUpTrayIcon, onClick: () => setImportOpen(true)},
+                    {label: "Экспорт", icon: ArrowDownTrayIcon, onClick: handleExport},
+                    {label: "Генерировать", icon: BoltIcon, onClick: handleGenerate},
+                    {label: "Функц. группы", icon: UserGroupIcon, onClick: handleGenerate},
+                    {label: "Администрирование", icon: WrenchScrewdriverIcon, onClick: handleGenerate},
+                    {label: "Правила", icon: ShieldCheckIcon, onClick: handleGenerate},
+                ]}
+            />
+
+            <ImportScheduleModal
+                open={importOpen}
+                onClose={() => setImportOpen(false)}
+                onSubmit={(file) => {
+                    console.log("upload", file);
+                }}
+            />
+
         </div>
     );
 }

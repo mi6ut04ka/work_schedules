@@ -1,18 +1,18 @@
 import {Head} from "@inertiajs/react";
 import {useState, useRef, useMemo, useCallback, useEffect} from "react";
 import {useVirtualizer} from "@tanstack/react-virtual";
-import Toolbar from "@/Pages/Dashboard/Toolbar";
-import ScheduleHeader from "@/Pages/Dashboard/ScheduleHeader";
-import Cell from "@/Pages/Dashboard/Cell";
+import Toolbar from "@/Pages/Dashboard/Components/Toolbar";
+import ScheduleHeader from "@/Pages/Dashboard/Components/ScheduleHeader";
+import Cell from "@/Pages/Dashboard/Components/Cell";
 import type {Employee, OrganisationUnit, ViewMode, SchedulePageProps} from "@/types/types";
-import useColumnHighlightStyle from "@/Pages/Dashboard/useColumnHighlightStyle";
-import SidebarEmployeeCell from "@/Pages/Dashboard/SidebarEmployeeCell";
+import useColumnHighlightStyle from "@/Pages/Dashboard/Hooks/useColumnHighlightStyle";
+import SidebarEmployeeCell from "@/Pages/Dashboard/Components/SidebarEmployeeCell";
 import {CELL_W, FALLBACK_COLORS, GROUP_H, ROW_H, SCHEDULE_STATUSES, SIDEBAR_W} from "@/types/types";
-import {useFilteredEmployees} from "@/Pages/Dashboard/useFilteredEmployees";
-import SidebarGroupHeader from "@/Pages/Dashboard/SidebarGroupHeader";
-import {useVirtualRows} from "@/Pages/Dashboard/useBuildRows";
-import {useCellSelection} from "@/Pages/Dashboard/useCellSelection";
-import {useScheduleDraft} from "@/Pages/Dashboard/useScheduleDraft";
+import {useFilteredEmployees} from "@/Pages/Dashboard/Hooks/useFilteredEmployees";
+import SidebarGroupHeader from "@/Pages/Dashboard/Components/SidebarGroupHeader";
+import {useVirtualRows} from "@/Pages/Dashboard/Hooks/useBuildRows";
+import {useCellSelection} from "@/Pages/Dashboard/Hooks/useCellSelection";
+import {useScheduleDraft} from "@/Pages/Dashboard/Hooks/useScheduleDraft";
 
 export default function Dashboard({
                                       month_meta,
@@ -114,10 +114,9 @@ export default function Dashboard({
     const employeeCount = filteredEmployees.length;
 
     return (
-        <div>
+        <div className="bg-slate-900">
             <Head title="График"/>
-            <div className="flex flex-col h-screen bg-[#0f1117] text-slate-200 overflow-hidden">
-
+            <div className="flex flex-col h-screen text-slate-200 overflow-hidden container mx-auto">
                 <Toolbar
                     viewMode={viewMode}
                     onViewChange={setViewMode}
