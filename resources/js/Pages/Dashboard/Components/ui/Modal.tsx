@@ -5,7 +5,7 @@ interface ModalProps {
     open: boolean;
     onClose: () => void;
     children: ReactNode;
-    size?: "sm" | "md" | "lg"
+    size?: "sm" | "md" | "lg" | "xl"
 }
 
 

@@ -17,7 +17,7 @@ export default function ImportScheduleModal({open, onClose, onSubmit}: Props) {
     };
 
     return (
-        <Modal open={open} onClose={onClose}>
+        <Modal open={open} onClose={onClose} size={'xl'}>
             <Modal.Header>Импорт графика</Modal.Header>
             <Modal.Body>
                 <input
@@ -30,14 +30,14 @@ export default function ImportScheduleModal({open, onClose, onSubmit}: Props) {
             <Modal.Footer>
                 <button
                     onClick={onClose}
-                    className="px-3 py-1 text-xs bg-slate-700 rounded"
+                    className="px-3 py-1  bg-slate-700 rounded"
                 >
                     Отмена
                 </button>
 
                 <button
                     onClick={handleSubmit}
-                    className="px-3 py-1 text-xs bg-blue-600 rounded disabled:opacity-50"
+                    className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
                     disabled={!file}
                 >
                     Загрузить
