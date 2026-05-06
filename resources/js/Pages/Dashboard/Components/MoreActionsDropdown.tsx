@@ -1,9 +1,9 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useRef, useEffect, FC, ComponentType} from "react";
 import {ChevronDownIcon} from "@heroicons/react/24/outline";
 
 interface ActionItem {
     label: string;
-    icon: any;
+    icon: ComponentType<{ className?: string }>;
     onClick: () => void;
 }
 
@@ -13,7 +13,7 @@ interface Props {
 
 export default function MoreActionsDropdown({actions}: Props) {
     const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement | null>(null);
+    const ref = useRef<HTMLDivElement>(null!);
 
     useEffect(() => {
         if (!open) return;
@@ -49,7 +49,7 @@ export default function MoreActionsDropdown({actions}: Props) {
                 <div
                     className="absolute right-0 mt-1 w-44 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
                     {actions.map((action, i) => {
-                        const Icon = action.icon as React.ReactElement;
+                        const Icon = action.icon;
 
                         return (
                             <div key={`${i}_${action.label}`}>

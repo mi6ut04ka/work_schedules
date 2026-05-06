@@ -15,8 +15,8 @@ import type { OrganisationUnit, ViewMode } from "@/types/types";
 import {MONTH_NAMES} from "@/types/types";
 import {ShieldCheckIcon, UserGroupIcon, WrenchScrewdriverIcon} from "@heroicons/react/24/solid";
 import MoreActionsDropdown from "@/Pages/Dashboard/Components/MoreActionsDropdown";
-import Modal from "@/Pages/Dashboard/Components/ui/Modal";
 import ImportScheduleModal from "@/Pages/Dashboard/Components/modals/ImportScheduleModal";
+import FunctionalGroupsModal from "@/Pages/Dashboard/Components/modals/FunctionalGroupsModal";
 
 
 const VIEWS: { id: ViewMode; label: string }[] = [
@@ -187,6 +187,7 @@ export default function Toolbar({
     };
 
     const [importOpen, setImportOpen] = useState(false);
+    const [functionalGroupsOpen, setFunctionalGroupsOpen] = useState(false);
 
     const handleExport = () => {
         console.log("export");
@@ -255,7 +256,7 @@ export default function Toolbar({
                     {label: "Импорт", icon: ArrowUpTrayIcon, onClick: () => setImportOpen(true)},
                     {label: "Экспорт", icon: ArrowDownTrayIcon, onClick: handleExport},
                     {label: "Генерировать", icon: BoltIcon, onClick: handleGenerate},
-                    {label: "Функц. группы", icon: UserGroupIcon, onClick: handleGenerate},
+                    {label: "Функц. группы", icon: UserGroupIcon, onClick: () => setFunctionalGroupsOpen(true)},
                     {label: "Администрирование", icon: WrenchScrewdriverIcon, onClick: handleGenerate},
                     {label: "Правила", icon: ShieldCheckIcon, onClick: handleGenerate},
                 ]}
@@ -267,6 +268,10 @@ export default function Toolbar({
                 onSubmit={(file) => {
                     console.log("upload", file);
                 }}
+            />
+            <FunctionalGroupsModal
+                open={functionalGroupsOpen}
+                onClose={() => setFunctionalGroupsOpen(false)}
             />
 
         </div>

@@ -18,6 +18,8 @@ Route::get('/', function () {
 Route::get('/dashboard', [\App\Http\Controllers\ScheduleController::class, 'index'])->name('dashboard');
 Route::post('/save', [\App\Http\Controllers\ScheduleController::class, 'saveSchedule'])->name('saveSchedule');
 
+Route::get('/groups/index', [\App\Http\Controllers\FunctionalGroupController::class, 'index'])->name('groups.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

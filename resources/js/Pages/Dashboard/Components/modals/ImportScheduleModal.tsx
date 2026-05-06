@@ -26,18 +26,17 @@ export default function ImportScheduleModal({open, onClose, onSubmit}: Props) {
                     className="text-xs"
                 />
             </Modal.Body>
-
             <Modal.Footer>
                 <button
                     onClick={onClose}
-                    className="px-3 py-1  bg-slate-700 rounded"
+                    className="px-3 py-1  bg-slate-700 rounded text-white"
                 >
                     Отмена
                 </button>
 
                 <button
                     onClick={handleSubmit}
-                    className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
+                    className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50 text-white"
                     disabled={!file}
                 >
                     Загрузить

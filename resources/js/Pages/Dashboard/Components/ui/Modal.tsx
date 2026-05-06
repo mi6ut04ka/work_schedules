@@ -1,4 +1,4 @@
-import {ReactNode, useEffect} from "react";
+import {FC, ReactNode, useEffect} from "react";
 import {createPortal} from "react-dom";
 
 interface ModalProps {
@@ -8,6 +8,10 @@ interface ModalProps {
     size?: "sm" | "md" | "lg" | "xl"
 }
 
+interface HeaderProps { className: string, children: ReactNode }
+interface BodyProps { children: ReactNode }
+interface FooterProps { children: ReactNode }
+
 
 const sizeClasses = {
     sm: "max-w-md",
@@ -16,7 +20,7 @@ const sizeClasses = {
     xl: "max-w-5xl",
 };
 
-export default function Modal({open, onClose, children, size = 'md'}: ModalProps) {
+function ModalRoot({open, onClose, children, size = 'md'}: ModalProps) {
 
     useEffect(() => {
         if (!open) return;
@@ -41,7 +45,7 @@ export default function Modal({open, onClose, children, size = 'md'}: ModalProps
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/10 backdrop-blur-sm"
                 onClick={onClose}
             />
 
@@ -56,15 +60,15 @@ export default function Modal({open, onClose, children, size = 'md'}: ModalProps
     );
 }
 
-export function ModalHeader({children, className = ""}: {children: ReactNode, className?: string}) {
+export function ModalHeader({children, className = ""}: HeaderProps) {
     return (
-        <div className={`p-5 text-slate-300 leading-relaxed ${className}`}>
+        <div className={`absolute -top-3 left-3 backdrop-blur-[1px] text-slate-300  ${className}`}>
             {children}
         </div>
     );
 }
 
-export function ModalBody({children}: { children: ReactNode }) {
+export function ModalBody({children}: BodyProps) {
     return (
         <div className="p-4 text-sm text-slate-300">
             {children}
@@ -72,7 +76,7 @@ export function ModalBody({children}: { children: ReactNode }) {
     );
 }
 
-export function ModalFooter({children}: {children: ReactNode}) {
+export function ModalFooter({children}: FooterProps) {
     return (
         <div className="px-4 py-3 border-t border-slate-700 flex justify-end gap-2">
             {children}
@@ -80,6 +84,16 @@ export function ModalFooter({children}: {children: ReactNode}) {
     );
 }
 
+type ModalComponent = FC<ModalProps> & {
+    Header: FC<HeaderProps>;
+    Body: FC<BodyProps>;
+    Footer: FC<FooterProps>;
+};
+
+const Modal = ModalRoot as ModalComponent;
+
 Modal.Header = ModalHeader;
 Modal.Body = ModalBody;
 Modal.Footer = ModalFooter;
+
+export default Modal;

@@ -51,31 +51,57 @@ class ScheduleController extends Controller
             $tempDate->addDay();
         }
 
-        $employeesRaw = Employee::with(['organisationUnit', 'functionalGroups'])->get();
 
-        $schedules = \App\Models\Schedule::whereIn('employee_id', $employeesRaw->pluck('id'))
-            ->whereBetween('date', [$startDate, $endDate])
+        $employees = DB::table('employees as e')
+            ->leftJoinSub(
+                DB::table('schedules')
+                    ->select('employee_id')
+                    ->selectRaw("jsonb_object_agg(date, shift_type) as schedule_raw")
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->groupBy('employee_id'),
+                's', 'e.id', '=', 's.employee_id'
+            )
+            ->leftJoin('organisation_units as ou', 'e.organisation_unit_id', '=', 'ou.id')
+            ->leftJoinSub(
+                DB::table('functional_groups as fg')
+                    ->join('employee_functional_group as efg', 'fg.id', '=', 'efg.functional_group_id')
+                    ->select('efg.employee_id')
+                    ->selectRaw("jsonb_agg(fg.*) as groups_json")
+                    ->groupBy('efg.employee_id'),
+                'f', 'e.id', '=', 'f.employee_id'
+            )
+            ->select([
+                'e.id', 'e.name', 'e.position', 'e.personnel_number', 'e.organisation_unit_id',
+                'ou.name as ou_name',
+                's.schedule_raw',
+                'f.groups_json'
+            ])
             ->get()
-            ->groupBy('employee_id');
+            ->map(function ($emp) {
+                $rawSchedule = is_array($emp->schedule_raw)
+                    ? $emp->schedule_raw
+                    : json_decode($emp->schedule_raw ?? '{}', true);
 
-        $employees = $employeesRaw->map(function (Employee $emp) use ($schedules) {
-            $empSchedule = [];
-            foreach ($schedules->get($emp->id, collect()) as $record) {
-                $dateKey = \Carbon\Carbon::parse($record->date)->format('Y-m-d');
-                $empSchedule[$dateKey] = self::codeMap[$record->shift_type] ?? $record->shift_type;
-            }
+                $mappedSchedule = [];
+                foreach ($rawSchedule as $date => $type) {
+                    $mappedSchedule[$date] = self::codeMap[$type] ?? $type;
+                }
 
-            return [
-                'id' => $emp->id,
-                'name' => $emp->name,
-                'position' => $emp->position,
-                'personnel_number' => $emp->personnel_number,
-                'organisation_unit_id' => $emp->organisation_unit_id,
-                'organisation_unit' => $emp->organisationUnit,
-                'functional_groups' => $emp->functionalGroups,
-                'schedule' => (object)$empSchedule,
-            ];
-        });
+                return [
+                    'id' => $emp->id,
+                    'name' => $emp->name,
+                    'position' => $emp->position,
+                    'personnel_number' => $emp->personnel_number,
+                    'organisation_unit_id' => $emp->organisation_unit_id,
+                    'organisation_unit' => [
+                        'name' => $emp->ou_name
+                    ],
+                    'functional_groups' => is_array($emp->groups_json)
+                        ? $emp->groups_json
+                        : json_decode($emp->groups_json ?? '[]', true),
+                    'schedule' => (object)$mappedSchedule,
+                ];
+            });
 
         $organisationUnits = \App\Models\OrganisationUnit::with(['children','allChildren'])
             ->whereNull('parent_id')
