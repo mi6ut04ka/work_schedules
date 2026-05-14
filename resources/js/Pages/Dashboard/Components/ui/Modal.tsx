@@ -62,7 +62,7 @@ function ModalRoot({open, onClose, children, size = 'md'}: ModalProps) {
 
 export function ModalHeader({children, className = ""}: HeaderProps) {
     return (
-        <div className={`absolute -top-3 left-3 backdrop-blur-[1px] text-slate-300  ${className}`}>
+        <div className={`absolute -top-4 left-3 backdrop-blur-[1px] text-slate-300 w-full  ${className}`}>
             {children}
         </div>
     );
